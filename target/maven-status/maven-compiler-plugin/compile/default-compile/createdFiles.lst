@@ -1,2 +1,6 @@
 com/kiki/blog/BlogApplication.class
+com/kiki/blog/entity/UserEntity.class
+com/kiki/blog/model/User.class
+com/kiki/blog/controller/UserController.class
+com/kiki/blog/repo/UserRepo.class
 com/kiki/blog/controller/HelloController.class

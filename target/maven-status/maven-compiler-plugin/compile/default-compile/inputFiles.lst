@@ -1,2 +1,6 @@
+/home/seayoung/Documents/Kiki/Blog/src/main/java/com/kiki/blog/entity/UserEntity.java
+/home/seayoung/Documents/Kiki/Blog/src/main/java/com/kiki/blog/model/User.java
+/home/seayoung/Documents/Kiki/Blog/src/main/java/com/kiki/blog/controller/UserController.java
 /home/seayoung/Documents/Kiki/Blog/src/main/java/com/kiki/blog/controller/HelloController.java
 /home/seayoung/Documents/Kiki/Blog/src/main/java/com/kiki/blog/BlogApplication.java
+/home/seayoung/Documents/Kiki/Blog/src/main/java/com/kiki/blog/repo/UserRepo.java
