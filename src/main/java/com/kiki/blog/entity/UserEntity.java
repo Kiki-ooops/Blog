@@ -1,38 +1,25 @@
 package com.kiki.blog.entity;
 
-import javax.persistence.*;
+import lombok.Data;
+import org.hibernate.annotations.GenericGenerator;
 
+import javax.persistence.*;
+import java.util.UUID;
+
+@Data
 @Entity
 public class UserEntity {
 
-    @Id
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
-    private int id;
-    private String username;
+    private UUID id;
     private String email;
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
+    private String username;
+    private String password;
+    private String roles;
 
     @Id
-    public int getId() {
+    @GeneratedValue(strategy=GenerationType.IDENTITY, generator = "UUID")
+    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
+    public UUID getId() {
         return id;
     }
 }
