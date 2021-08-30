@@ -1,0 +1,601 @@
+openapi: '3.0.0'
+
+info:
+  title: 'Blog REST API'
+  version: '1.0.1'
+
+paths:
+  /authenticate:
+    post:
+      description: 'Authenticate user with username and password'
+      operationId: 'authenticate'
+      requestBody:
+        description: 'Send authentication request with username and password'
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthRequest'
+      responses:
+        '200':
+          description: 'Return jwt token'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+
+  /user:
+    get:
+      description: 'Get all users'
+      operationId: 'getAllUsers'
+      responses:
+        '200':
+          description: 'Return all users'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+
+    post:
+      description: 'Create a user'
+      operationId: 'createUser'
+      requestBody:
+        description: 'User to be created'
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUser'
+      responses:
+        '200':
+          description: 'Return created new user'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+
+  /user/{userId}:
+    get:
+      description: 'Get user by Id'
+      operationId: 'getUser'
+      parameters:
+        - name: 'userId'
+          in: path
+          description: 'Id of the user'
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'Return the user with provided Id'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+
+    put:
+      description: 'Update user by Id'
+      operationId: 'updateUser'
+      parameters:
+        - name: 'userId'
+          in: path
+          description: 'Id of the user'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: 'User to be updated'
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUser'
+      responses:
+        '200':
+          description: 'Return the user with provided Id'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+
+    delete:
+      description: 'Delete user by Id'
+      operationId: 'deleteUser'
+      parameters:
+        - name: 'userId'
+          in: path
+          description: 'Id of the user'
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'User deleted'
+
+  /user/{userId}/follower:
+    get:
+      description: 'Get all followers of user by user Id'
+      operationId: 'getFollowers'
+      parameters:
+        - name: 'userId'
+          in: path
+          description: 'Id of the user'
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'Return all followers of the user'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+
+  /user/{userId}/following:
+    get:
+      description: 'Get all followings of user by user Id'
+      operationId: 'getFollowings'
+      parameters:
+        - name: 'userId'
+          in: path
+          description: 'Id of the user'
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'Return all followings of the user'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+
+  /user/{userId}/follow/{followId}:
+    get:
+      description: 'Follow new user'
+      operationId: 'followUser'
+      parameters:
+        - name: 'userId'
+          in: path
+          description: 'Id of current user'
+          required: true
+          schema:
+            type: string
+        - name: 'followId'
+          in: path
+          description: 'Id of user to follow'
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'Follow added'
+
+    delete:
+      description: 'Unfollow user'
+      operationId: 'unfollowUser'
+      parameters:
+        - name: 'userId'
+          in: path
+          description: 'Id of current user'
+          required: true
+          schema:
+            type: string
+        - name: 'followId'
+          in: path
+          description: 'Id of user to unfollow'
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'Follow deleted'
+
+  /user/{userId}/like/post/{postId}:
+    get:
+      description: 'Like a post'
+      operationId: 'likePost'
+      parameters:
+        - name: 'userId'
+          in: path
+          description: 'Id of user'
+          required: true
+          schema:
+            type: string
+        - name: 'postId'
+          in: path
+          description: 'Id of post to like'
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'Like post succeeded'
+
+    delete:
+      description: 'Unlike a post'
+      operationId: 'unlikePost'
+      parameters:
+        - name: 'userId'
+          in: path
+          description: 'Id of user'
+          required: true
+          schema:
+            type: string
+        - name: 'postId'
+          in: path
+          description: 'Id of post to unlike'
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'Unlike post succeeded'
+
+  /user/{userId}/like/comment/{commentId}:
+    get:
+      description: 'Like a comment'
+      operationId: 'likeComment'
+      parameters:
+        - name: 'userId'
+          in: path
+          description: 'Id of user'
+          required: true
+          schema:
+            type: string
+        - name: 'commentId'
+          in: path
+          description: 'Id of comment to like'
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'Like comment succeeded'
+
+    delete:
+      description: 'Unlike a comment'
+      operationId: 'unlikeComment'
+      parameters:
+        - name: 'userId'
+          in: path
+          description: 'Id of user'
+          required: true
+          schema:
+            type: string
+        - name: 'commentId'
+          in: path
+          description: 'Id of comment to unlike'
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'Unlike comment succeeded'
+
+  /user/{userId}/post:
+    get:
+      description: 'Get all posts of user by user Id'
+      operationId: 'getUserPosts'
+      parameters:
+        - name: 'userId'
+          in: path
+          description: 'Id of the user'
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'Return all posts of the user'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Post'
+
+    post:
+      description: 'Create post with user by Id'
+      operationId: 'createUserPost'
+      parameters:
+        - name: 'userId'
+          in: path
+          description: 'Id of the user'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: 'Post to be created'
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Post'
+      responses:
+        '200':
+          description: 'Return new post'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+
+  /post/{postId}:
+    get:
+      description: 'Get post by Id'
+      operationId: 'getPost'
+      parameters:
+        - name: 'postId'
+          in: path
+          description: 'Id of the post'
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'Return post with provided Id'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+
+    put:
+      description: 'Update post by Id'
+      operationId: 'updatePost'
+      parameters:
+        - name: 'postId'
+          in: path
+          description: 'Id of the post'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: 'Post to be updated'
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Post'
+      responses:
+        '200':
+          description: 'Return updated post'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+
+    delete:
+      description: 'Delete post by Id'
+      operationId: 'deletePost'
+      parameters:
+        - name: 'postId'
+          in: path
+          description: 'Id of the post'
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'Post deleted'
+
+  /post/{postId}/comment:
+    get:
+      description: 'Get all comments of post by Id'
+      operationId: 'getComments'
+      parameters:
+        - name: 'postId'
+          in: path
+          description: 'Id of the post'
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'Return all comments of the post'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Comment'
+
+    post:
+      description: 'Post comment for a post'
+      operationId: 'postComment'
+      parameters:
+        - name: 'postId'
+          in: path
+          description: 'Id of the post'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: 'Comment to be posted'
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Comment'
+      responses:
+        '200':
+          description: 'Return posted comment'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+
+  /post/{postId}/likes:
+    get:
+      description: 'Get number of likes of this post'
+      operationId: 'getPostNumLikes'
+      parameters:
+        - name: 'postId'
+          in: path
+          description: 'Id of the post'
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'Number of likes of this post'
+          content:
+            application/json:
+              schema:
+                type: integer
+
+  /comment/{commentId}:
+    get:
+      description: 'Get comment by Id'
+      operationId: 'getComment'
+      parameters:
+        - name: 'commentId'
+          in: path
+          description: 'Id of the comment'
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'Return comment with provided Id'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+
+    put:
+      description: 'Update comment by Id'
+      operationId: 'updateComment'
+      parameters:
+        - name: 'commentId'
+          in: path
+          description: 'Id of the comment'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: 'Comment to be updated'
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Comment'
+      responses:
+        '200':
+          description: 'Return updated comment'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+
+    delete:
+      description: 'Delete comment by Id'
+      operationId: 'deleteComment'
+      parameters:
+        - name: 'commentId'
+          in: path
+          description: 'Id of the comment'
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'Comment deleted'
+
+  /comment/{commentId}/likes:
+    get:
+      description: 'Get number of likes of this comment'
+      operationId: 'getCommentNumLikes'
+      parameters:
+        - name: 'commentId'
+          in: path
+          description: 'Id of the comment'
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'Number of likes of this comment'
+          content:
+            application/json:
+              schema:
+                type: integer
+
+components:
+  schemas:
+    AuthRequest:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+      required:
+        - username
+        - password
+
+    AuthResponse:
+      type: object
+      properties:
+        token:
+          type: string
+      required:
+        - token
+
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        username:
+          type: string
+        email:
+          type: string
+        avatar:
+          type: string
+      required:
+        - username
+        - email
+
+    CreateUser:
+      type: object
+      properties:
+        user:
+          $ref: '#/components/schemas/User'
+        password:
+          type: string
+      required:
+        - user
+        - password
+
+    Post:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        content:
+          type: string
+        datetime:
+          type: string
+          format: date-time
+        user:
+          $ref: '#/components/schemas/User'
+        post:
+          $ref: '#/components/schemas/Post'
+      required:
+        - title
+        - content
+
+    Comment:
+      type: object
+      properties:
+        id:
+          type: string
+        content:
+          type: string
+        datetime:
+          type: string
+          format: date-time
+        user:
+          $ref: '#/components/schemas/User'
+      required:
+        - content

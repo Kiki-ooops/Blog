@@ -1,20 +1,23 @@
 package com.kiki.blog.security.controller;
 
-import com.kiki.blog.security.model.AuthRequest;
-import com.kiki.blog.security.model.AuthResponse;
+import com.kiki.blog.openapi.api.AuthenticateApi;
+import com.kiki.blog.openapi.model.AuthRequest;
+import com.kiki.blog.openapi.model.AuthResponse;
 import com.kiki.blog.security.service.JwtTokenService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
+
 @RestController
-public class AuthController {
+public class AuthController implements AuthenticateApi {
 
     private final JwtTokenService jwtTokenService;
     private final UserDetailsService userDetailsService;
@@ -30,17 +33,17 @@ public class AuthController {
         this.authenticationManager = authenticationManager;
     }
 
-    @PostMapping("/authenticate")
-    public AuthResponse authenticate(@RequestBody AuthRequest request) throws Exception {
+    @Override
+    public ResponseEntity<AuthResponse> authenticate(@Valid AuthRequest authRequest) {
         try {
             authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
+                    new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword())
             );
         } catch (BadCredentialsException e) {
-            throw new Exception("Incorrect username or password");
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
 
-        UserDetails userDetails = userDetailsService.loadUserByUsername(request.getUsername());
-        return new AuthResponse(jwtTokenService.generateToken(userDetails));
+        UserDetails userDetails = userDetailsService.loadUserByUsername(authRequest.getUsername());
+        return new ResponseEntity<>(new AuthResponse().token(jwtTokenService.generateToken(userDetails)), HttpStatus.OK);
     }
 }

@@ -12,6 +12,7 @@ public class UserEntity {
 
     private UUID id;
     private String email;
+    private String avatar;
     private String username;
     private String password;
     private String roles;
