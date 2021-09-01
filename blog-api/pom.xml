@@ -70,6 +70,7 @@
                             </configOptions>
                             <additionalProperties>
                                 <additionalProperty>configPackage=com.kiki.blog.openapi.config</additionalProperty>
+                                <additionalProperty>unhandledException=true</additionalProperty>
                             </additionalProperties>
                         </configuration>
                     </execution>

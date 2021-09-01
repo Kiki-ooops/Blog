@@ -8,24 +8,24 @@ import java.util.UUID;
 
 @Data
 @Entity
-public class UserEntity {
-
+public class LikePostEntity {
     private UUID id;
-    private String email;
-    private String avatar;
-    private String username;
-    private String password;
-    private String roles;
+    private UserEntity user;
+    private PostEntity post;
 
     @Id
-    @GeneratedValue(strategy=GenerationType.IDENTITY, generator = "UUID")
+    @GeneratedValue(strategy= GenerationType.IDENTITY, generator = "UUID")
     @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
     public UUID getId() {
         return id;
     }
 
-    @Column(unique=true)
-    public String getUsername() {
-        return username;
+    @ManyToOne
+    public UserEntity getUser() {
+        return user;
+    }
+    @ManyToOne
+    public PostEntity getPost() {
+        return post;
     }
 }

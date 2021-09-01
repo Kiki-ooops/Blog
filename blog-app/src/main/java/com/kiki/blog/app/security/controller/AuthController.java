@@ -5,6 +5,7 @@ import com.kiki.blog.openapi.model.AuthRequest;
 import com.kiki.blog.openapi.model.AuthResponse;
 import com.kiki.blog.app.security.service.JwtTokenService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -26,7 +27,7 @@ public class AuthController implements AuthenticateApi {
     @Autowired
     public AuthController(
             JwtTokenService jwtTokenService,
-            UserDetailsService userDetailsService,
+            @Qualifier("blogUserService") UserDetailsService userDetailsService,
             AuthenticationManager authenticationManager) {
         this.jwtTokenService = jwtTokenService;
         this.userDetailsService = userDetailsService;
@@ -34,7 +35,8 @@ public class AuthController implements AuthenticateApi {
     }
 
     @Override
-    public ResponseEntity<AuthResponse> authenticate(@Valid AuthRequest authRequest) {
+    public ResponseEntity<AuthResponse> authenticate(@Valid AuthRequest authRequest) throws Exception {
+        UserDetails userDetails = userDetailsService.loadUserByUsername(authRequest.getUsername());
         try {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword())
@@ -42,8 +44,6 @@ public class AuthController implements AuthenticateApi {
         } catch (BadCredentialsException e) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
-
-        UserDetails userDetails = userDetailsService.loadUserByUsername(authRequest.getUsername());
         return new ResponseEntity<>(new AuthResponse().token(jwtTokenService.generateToken(userDetails)), HttpStatus.OK);
     }
 }

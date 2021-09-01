@@ -1,7 +1,7 @@
 package com.kiki.blog.app.security.service;
 
 import com.kiki.blog.app.entity.UserEntity;
-import com.kiki.blog.app.repo.UserRepo;
+import com.kiki.blog.app.repository.UserRepository;
 import com.kiki.blog.app.security.model.BlogUserDetail;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -12,15 +12,16 @@ import org.springframework.stereotype.Service;
 @Service
 public class BlogUserService implements UserDetailsService {
 
-    private final UserRepo userRepo;
+    private final UserRepository userRepository;
 
     @Autowired
-    public BlogUserService(UserRepo userRepo) {
-        this.userRepo = userRepo;
+    public BlogUserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
+
     @Override
     public UserDetails loadUserByUsername(String s) throws UsernameNotFoundException {
-        UserEntity user = userRepo.findByUsername(s);
+        UserEntity user = userRepository.findByUsername(s);
         if (user != null) {
             return new BlogUserDetail(user);
         } else {

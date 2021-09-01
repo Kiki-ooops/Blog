@@ -4,18 +4,23 @@ import lombok.Data;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
-import java.time.OffsetDateTime;
 import java.util.UUID;
 
 @Data
 @Entity
-public class PostEntity {
+public class FollowEntity {
     private UUID id;
-    private String title;
-    private String content;
-    private OffsetDateTime datetime;
-    private UserEntity user;
-    private PostEntity post;
+    private UserEntity from;
+    private UserEntity to;
+
+    public FollowEntity(UserEntity from, UserEntity to) {
+        this.from = from;
+        this.to = to;
+    }
+
+    public FollowEntity() {
+
+    }
 
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY, generator = "UUID")
@@ -25,11 +30,11 @@ public class PostEntity {
     }
 
     @ManyToOne
-    public UserEntity getUser() {
-        return user;
+    public UserEntity getFrom() {
+        return from;
     }
     @ManyToOne
-    public PostEntity getPost() {
-        return post;
+    public UserEntity getTo() {
+        return to;
     }
 }
