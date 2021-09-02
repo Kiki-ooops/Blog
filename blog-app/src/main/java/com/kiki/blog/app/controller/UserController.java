@@ -91,7 +91,9 @@ public class UserController implements UserApi {
 
     @Override
     public ResponseEntity<Void> unfollowUser(String userId, String followId) throws Exception {
-        return null;
+        userService.validateUserContext(userId);
+        userService.unfollowUser(userId, followId);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @Override

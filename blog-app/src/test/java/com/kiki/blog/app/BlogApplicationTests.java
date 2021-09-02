@@ -209,6 +209,43 @@ class BlogApplicationTests {
     }
 
     @Test
+    public void testUnfollowUser() throws Exception {
+        TestUserUtil userUtil1 = new TestUserUtil();
+        User user1 = userUtil1.createUser(mockMvc);
+        TestUserUtil userUtil2 = new TestUserUtil();
+        User user2 = userUtil2.createUser(mockMvc);
+
+        String token = authenticate(userUtil1.username, userUtil1.password);
+        mockMvc.perform(
+                MockMvcRequestBuilders
+                        .get("/user/" + user1.getId() + "/follow/" + user2.getId())
+                        .header("Authorization", token)
+        ).andExpect(MockMvcResultMatchers.status().isOk());
+
+        MvcResult result = mockMvc.perform(
+                MockMvcRequestBuilders
+                        .get("/user/" + user1.getId() + "/following")
+                        .header("Authorization", token)
+        ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+        User[] followings = getObject(result.getResponse().getContentAsString(), User[].class);
+        assert followings.length == 1;
+
+        mockMvc.perform(
+                MockMvcRequestBuilders
+                        .delete("/user/" + user1.getId() + "/follow/" + user2.getId())
+                        .header("Authorization", token)
+        ).andExpect(MockMvcResultMatchers.status().isOk());
+
+        result = mockMvc.perform(
+                MockMvcRequestBuilders
+                        .get("/user/" + user1.getId() + "/following")
+                        .header("Authorization", token)
+        ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+        followings = getObject(result.getResponse().getContentAsString(), User[].class);
+        assert followings.length == 0;
+    }
+
+    @Test
     public void testGetFollowers() throws Exception {
         TestUserUtil userUtil1 = new TestUserUtil();
         User user1 = userUtil1.createUser(mockMvc);

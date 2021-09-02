@@ -9,4 +9,5 @@ import java.util.UUID;
 public interface FollowRepository extends CrudRepository<FollowEntity, UUID> {
     List<FollowEntity> findAllByToId(UUID toUserId);
     List<FollowEntity> findAllByFromId(UUID fromUserId);
+    FollowEntity findFollowEntityByFromIdAndToId(UUID fromUserId, UUID toUserId);
 }

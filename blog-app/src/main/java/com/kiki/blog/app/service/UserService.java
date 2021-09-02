@@ -102,6 +102,15 @@ public class UserService {
         }
     }
 
+    public void unfollowUser(String from, String to) throws UserNotFoundException {
+        FollowEntity follow = followRepository.findFollowEntityByFromIdAndToId(UUID.fromString(from), UUID.fromString(to));
+        try {
+            followRepository.delete(follow);
+        } catch (Exception e) {
+            throw new UserNotFoundException("User " + to + " not found");
+        }
+    }
+
     public List<User> getFollowers(String userId) {
         return followRepository.findAllByToId(UUID.fromString(userId))
                 .stream()
