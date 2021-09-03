@@ -372,6 +372,41 @@ class BlogApplicationTests {
     }
 
     @Test
+    public void testCreatePostWithInvalidUser() throws Exception {
+        TestUserUtil userUtil = new TestUserUtil();
+        User user = userUtil.createUser(mockMvc);
+        Post post = new Post()
+                .user(user)
+                .title(UUID.randomUUID().toString())
+                .content(UUID.randomUUID().toString());
+
+        String token = authenticate(userUtil.username, userUtil.password);
+        mockMvc.perform(
+                MockMvcRequestBuilders
+                        .post("/user/" + UUID.randomUUID().toString() + "/post")
+                        .header("Authorization", token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(getJson(post))
+                        .accept(MediaType.APPLICATION_JSON)
+        ).andExpect(MockMvcResultMatchers.status().isUnauthorized());
+    }
+
+    @Test
+    public void testGetPost() throws Exception {
+        TestPostUtil postUtil = new TestPostUtil();
+        Post newPost = postUtil.createPost(mockMvc);
+
+        String token = authenticate(postUtil.userUtil.username, postUtil.userUtil.password);
+        MvcResult result = mockMvc.perform(
+                MockMvcRequestBuilders.get(String.format("/post/%s", newPost.getId())).header("Authorization", token)
+        ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+        Post post = getObject(result.getResponse().getContentAsString(), Post.class);
+
+        assert post.getId().equals(newPost.getId());
+        assert post.getContent().equals(newPost.getContent());
+    }
+
+    @Test
     public void testGetPosts() throws Exception {
         TestUserUtil userUtil = new TestUserUtil();
         User user = userUtil.createUser(mockMvc);
@@ -452,24 +487,59 @@ class BlogApplicationTests {
     }
 
     @Test
-    public void testCreatePostWithInvalidUser() throws Exception {
+    public void testPostComment() throws Exception {
         TestUserUtil userUtil = new TestUserUtil();
         User user = userUtil.createUser(mockMvc);
-        Post post = new Post()
-                .user(user)
-                .title(UUID.randomUUID().toString())
-                .content(UUID.randomUUID().toString());
+        TestPostUtil postUtil = new TestPostUtil();
+        Post post = postUtil.createPost(mockMvc);
+        Comment comment = new Comment().user(user).post(post).content(UUID.randomUUID().toString());
 
         String token = authenticate(userUtil.username, userUtil.password);
-        mockMvc.perform(
+        MvcResult result = mockMvc.perform(
                 MockMvcRequestBuilders
-                        .post("/user/" + UUID.randomUUID().toString() + "/post")
+                        .post(String.format("/user/%s/post/%s/comment", userUtil.id, postUtil.id))
                         .header("Authorization", token)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(getJson(post))
+                        .content(getJson(comment))
                         .accept(MediaType.APPLICATION_JSON)
-        ).andExpect(MockMvcResultMatchers.status().isUnauthorized());
+        ).andExpect(MockMvcResultMatchers.status().isCreated()).andReturn();
+        Comment newComment = getObject(result.getResponse().getContentAsString(), Comment.class);
+
+        assert newComment.getUser().getId().equals(user.getId());
+        assert newComment.getPost().getId().equals(post.getId());
+        assert newComment.getContent().equals(comment.getContent());
     }
+
+    @Test
+    public void testGetComment() throws Exception {}
+
+    @Test
+    public void testGetComments() throws Exception {}
+
+    @Test
+    public void testUpdateComment() throws Exception {}
+
+    @Test
+    public void testDeleteComment() throws Exception {}
+
+    @Test
+    public void testLikePost() throws Exception {}
+
+    @Test
+    public void testUnlikePost() throws Exception {}
+
+    @Test
+    public void testLikeComment() throws Exception {}
+
+    @Test
+    public void testUnlikeComment() throws Exception {}
+
+    @Test
+    public void testGetPostNumLikes() throws Exception {}
+
+    @Test
+    public void testGetCommentNumLikes() throws Exception {}
+
 
     private String getJson(Object object) throws Exception {
         try {

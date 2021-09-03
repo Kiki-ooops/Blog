@@ -54,7 +54,7 @@ public class PostService {
         if (post.isEmpty()) {
             throw new EntityNotFoundException("Post with ID " + postId + " not found");
         } else {
-            return mapper.map(post, Post.class);
+            return mapper.map(post.get(), Post.class);
         }
     }
 

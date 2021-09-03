@@ -67,7 +67,7 @@ public class CommentService {
         if (comment.isEmpty()) {
             throw new EntityNotFoundException("Comment with ID " + commentId + " not found");
         } else {
-            return mapper.map(comment, Comment.class);
+            return mapper.map(comment.get(), Comment.class);
         }
     }
 
