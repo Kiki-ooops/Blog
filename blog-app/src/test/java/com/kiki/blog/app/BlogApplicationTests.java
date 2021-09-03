@@ -28,6 +28,7 @@ class BlogApplicationTests {
     private final ObjectMapper objectMapper;
 
     private class TestUserUtil {
+        private String id;
         private final String username;
         private final String password;
         private final String email;
@@ -53,7 +54,43 @@ class BlogApplicationTests {
                             .content(getJson(newUser))
                             .accept(MediaType.APPLICATION_JSON)
             ).andExpect(MockMvcResultMatchers.status().isCreated()).andReturn();
-            return getObject(result.getResponse().getContentAsString(), User.class);
+            User user = getObject(result.getResponse().getContentAsString(), User.class);
+            id = user.getId();
+            return user;
+        }
+    }
+
+    private class TestPostUtil {
+        private String id;
+        private final TestUserUtil userUtil;
+        private final String title;
+        private final String content;
+
+        public TestPostUtil() {
+            userUtil = new TestUserUtil();
+            title = UUID.randomUUID().toString();
+            content = UUID.randomUUID().toString();
+        }
+
+        public Post getPost() {
+            return new Post().title(title).content(content);
+        }
+
+        public Post createPost(MockMvc mockMvc) throws Exception {
+            User user = userUtil.createUser(mockMvc);
+            Post newPost = getPost().user(user);
+            String token = authenticate(userUtil.username, userUtil.password);
+            MvcResult result = mockMvc.perform(
+                    MockMvcRequestBuilders
+                            .post(String.format("/user/%s/post", user.getId()))
+                            .header("Authorization", token)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(getJson(newPost))
+                            .accept(MediaType.APPLICATION_JSON)
+            ).andExpect(MockMvcResultMatchers.status().isCreated()).andReturn();
+            Post post = getObject(result.getResponse().getContentAsString(), Post.class);
+            id = post.getId();
+            return post;
         }
     }
 
@@ -373,6 +410,45 @@ class BlogApplicationTests {
         Post[] posts = getObject(result.getResponse().getContentAsString(), Post[].class);
 
         assert posts.length == 2;
+    }
+
+    @Test
+    public void testUpdatePost() throws Exception {
+        TestPostUtil postUtil = new TestPostUtil();
+        Post post = postUtil.createPost(mockMvc);
+
+        String token = authenticate(postUtil.userUtil.username, postUtil.userUtil.password);
+        post.setContent(UUID.randomUUID().toString());
+        MvcResult result = mockMvc.perform(
+                MockMvcRequestBuilders
+                        .put(String.format("/user/%s/post/%s", postUtil.userUtil.id, postUtil.id))
+                        .header("Authorization", token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(getJson(post))
+                        .accept(MediaType.APPLICATION_JSON)
+        ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+        Post newPost = getObject(result.getResponse().getContentAsString(), Post.class);
+
+        assert newPost.getId().equals(post.getId());
+        assert newPost.getContent().equals(post.getContent());
+    }
+
+    @Test
+    public void testDeletePost() throws Exception {
+        TestPostUtil postUtil = new TestPostUtil();
+        Post post = postUtil.createPost(mockMvc);
+
+        String token = authenticate(postUtil.userUtil.username, postUtil.userUtil.password);
+        mockMvc.perform(
+                MockMvcRequestBuilders
+                        .delete(String.format("/user/%s/post/%s", postUtil.userUtil.id, postUtil.id))
+                        .header("Authorization", token)
+        ).andExpect(MockMvcResultMatchers.status().isOk());
+        mockMvc.perform(
+                MockMvcRequestBuilders
+                        .get(String.format("/post/%s", post.getId()))
+                        .header("Authorization", token)
+        ).andExpect(MockMvcResultMatchers.status().isNotFound());
     }
 
     @Test

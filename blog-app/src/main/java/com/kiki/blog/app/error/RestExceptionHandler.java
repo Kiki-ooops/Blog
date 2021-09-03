@@ -1,7 +1,7 @@
 package com.kiki.blog.app.error;
 
 import com.kiki.blog.app.error.exception.UnauthorizedAccessException;
-import com.kiki.blog.app.error.exception.UserNotFoundException;
+import com.kiki.blog.app.error.exception.EntityNotFoundException;
 import com.kiki.blog.app.error.exception.UsernameConflictExceptions;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,8 +23,8 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.CONFLICT);
     }
 
-    @ExceptionHandler(UserNotFoundException.class)
-    protected ResponseEntity<Object> handleUserNotFoundExceptions(UserNotFoundException ex) {
+    @ExceptionHandler(EntityNotFoundException.class)
+    protected ResponseEntity<Object> handleEntityNotFoundExceptions(EntityNotFoundException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 

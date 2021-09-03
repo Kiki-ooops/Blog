@@ -1,41 +1,41 @@
 package com.kiki.blog.app.controller;
 
+import com.kiki.blog.app.service.CommentService;
+import com.kiki.blog.app.service.PostService;
 import com.kiki.blog.openapi.api.PostApi;
 import com.kiki.blog.openapi.model.Comment;
 import com.kiki.blog.openapi.model.Post;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RestController;
 
-import javax.validation.Valid;
 import java.util.List;
 
+@RestController
 public class PostController implements PostApi {
-    @Override
-    public ResponseEntity<Void> deletePost(String postId) {
-        return null;
+
+    private final PostService postService;
+    private final CommentService commentService;
+
+    @Autowired
+    public PostController(PostService postService, CommentService commentService) {
+        this.postService = postService;
+        this.commentService = commentService;
     }
 
     @Override
-    public ResponseEntity<List<Comment>> getComments(String postId) {
-        return null;
+    public ResponseEntity<List<Comment>> getComments(String postId) throws Exception {
+        return new ResponseEntity<>(commentService.getComments(postId), HttpStatus.OK);
     }
 
     @Override
-    public ResponseEntity<Post> getPost(String postId) {
-        return null;
+    public ResponseEntity<Post> getPost(String postId) throws Exception {
+        return new ResponseEntity<>(postService.getPost(postId), HttpStatus.OK);
     }
 
     @Override
-    public ResponseEntity<Integer> getPostNumLikes(String postId) {
-        return null;
-    }
-
-    @Override
-    public ResponseEntity<Comment> postComment(String postId, @Valid Comment comment) {
-        return null;
-    }
-
-    @Override
-    public ResponseEntity<Post> updatePost(String postId, @Valid Post post) {
-        return null;
+    public ResponseEntity<Integer> getPostNumLikes(String postId) throws Exception {
+        return new ResponseEntity<>(postService.getPostLikes(postId), HttpStatus.OK);
     }
 }

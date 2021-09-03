@@ -8,4 +8,5 @@ import java.util.UUID;
 
 public interface PostRepository extends CrudRepository<PostEntity, UUID> {
     List<PostEntity> findAllByUserId(UUID userId);
+    PostEntity findPostEntityByIdAndUserId(UUID postId, UUID userId);
 }

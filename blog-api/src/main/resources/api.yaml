@@ -285,7 +285,7 @@ paths:
   /user/{userId}/post:
     get:
       description: 'Get all posts of user by user Id'
-      operationId: 'getUserPosts'
+      operationId: 'getPosts'
       parameters:
         - name: 'userId'
           in: path
@@ -305,7 +305,7 @@ paths:
 
     post:
       description: 'Create post with user by Id'
-      operationId: 'createUserPost'
+      operationId: 'createPost'
       parameters:
         - name: 'userId'
           in: path
@@ -327,29 +327,17 @@ paths:
               schema:
                 $ref: '#/components/schemas/Post'
 
-  /post/{postId}:
-    get:
-      description: 'Get post by Id'
-      operationId: 'getPost'
-      parameters:
-        - name: 'postId'
-          in: path
-          description: 'Id of the post'
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: 'Return post with provided Id'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Post'
-
+  /user/{userId}/post/{postId}:
     put:
       description: 'Update post by Id'
       operationId: 'updatePost'
       parameters:
+        - name: 'userId'
+          in: path
+          description: 'Id of the user'
+          required: true
+          schema:
+            type: string
         - name: 'postId'
           in: path
           description: 'Id of the post'
@@ -374,6 +362,12 @@ paths:
       description: 'Delete post by Id'
       operationId: 'deletePost'
       parameters:
+        - name: 'userId'
+          in: path
+          description: 'Id of the user'
+          required: true
+          schema:
+            type: string
         - name: 'postId'
           in: path
           description: 'Id of the post'
@@ -383,6 +377,107 @@ paths:
       responses:
         '200':
           description: 'Post deleted'
+
+  /user/{userId}/post/{postId}/comment:
+    post:
+      description: 'Post comment for a post'
+      operationId: 'postComment'
+      parameters:
+        - name: 'userId'
+          in: path
+          description: 'Id of the user'
+          required: true
+          schema:
+            type: string
+        - name: 'postId'
+          in: path
+          description: 'Id of the post'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: 'Comment to be posted'
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Comment'
+      responses:
+        '200':
+          description: 'Return posted comment'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+
+  /user/{userId}/comment/{commentId}:
+    put:
+      description: 'Update comment by Id'
+      operationId: 'updateComment'
+      parameters:
+        - name: 'userId'
+          in: path
+          description: 'Id of the user'
+          required: true
+          schema:
+            type: string
+        - name: 'commentId'
+          in: path
+          description: 'Id of the comment'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: 'Comment to be updated'
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Comment'
+      responses:
+        '200':
+          description: 'Return updated comment'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+
+    delete:
+      description: 'Delete comment by Id'
+      operationId: 'deleteComment'
+      parameters:
+        - name: 'userId'
+          in: path
+          description: 'Id of the user'
+          required: true
+          schema:
+            type: string
+        - name: 'commentId'
+          in: path
+          description: 'Id of the comment'
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'Comment deleted'
+
+  /post/{postId}:
+    get:
+      description: 'Get post by Id'
+      operationId: 'getPost'
+      parameters:
+        - name: 'postId'
+          in: path
+          description: 'Id of the post'
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'Return post with provided Id'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
 
   /post/{postId}/comment:
     get:
@@ -404,30 +499,6 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Comment'
-
-    post:
-      description: 'Post comment for a post'
-      operationId: 'postComment'
-      parameters:
-        - name: 'postId'
-          in: path
-          description: 'Id of the post'
-          required: true
-          schema:
-            type: string
-      requestBody:
-        description: 'Comment to be posted'
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Comment'
-      responses:
-        '200':
-          description: 'Return posted comment'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Comment'
 
   /post/{postId}/likes:
     get:
@@ -466,44 +537,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Comment'
-
-    put:
-      description: 'Update comment by Id'
-      operationId: 'updateComment'
-      parameters:
-        - name: 'commentId'
-          in: path
-          description: 'Id of the comment'
-          required: true
-          schema:
-            type: string
-      requestBody:
-        description: 'Comment to be updated'
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Comment'
-      responses:
-        '200':
-          description: 'Return updated comment'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Comment'
-
-    delete:
-      description: 'Delete comment by Id'
-      operationId: 'deleteComment'
-      parameters:
-        - name: 'commentId'
-          in: path
-          description: 'Id of the comment'
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: 'Comment deleted'
 
   /comment/{commentId}/likes:
     get:

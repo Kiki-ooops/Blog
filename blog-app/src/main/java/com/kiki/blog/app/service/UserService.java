@@ -1,11 +1,12 @@
 package com.kiki.blog.app.service;
 
-import com.kiki.blog.app.entity.FollowEntity;
-import com.kiki.blog.app.entity.UserEntity;
+import com.kiki.blog.app.entity.*;
 import com.kiki.blog.app.error.exception.UnauthorizedAccessException;
-import com.kiki.blog.app.error.exception.UserNotFoundException;
+import com.kiki.blog.app.error.exception.EntityNotFoundException;
 import com.kiki.blog.app.error.exception.UsernameConflictExceptions;
 import com.kiki.blog.app.repository.FollowRepository;
+import com.kiki.blog.app.repository.LikeCommentRepository;
+import com.kiki.blog.app.repository.LikePostRepository;
 import com.kiki.blog.app.repository.UserRepository;
 import com.kiki.blog.openapi.model.CreateUser;
 import com.kiki.blog.openapi.model.User;
@@ -28,13 +29,17 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final FollowRepository followRepository;
+    private final LikePostRepository likePostRepository;
+    private final LikeCommentRepository likeCommentRepository;
     private final PasswordEncoder encoder;
     private final ModelMapper mapper = new ModelMapper();
 
     @Autowired
-    public UserService(UserRepository userRepository, FollowRepository followRepository, PasswordEncoder encoder) {
+    public UserService(UserRepository userRepository, FollowRepository followRepository, LikePostRepository likePostRepository, LikeCommentRepository likeCommentRepository, PasswordEncoder encoder) {
         this.userRepository = userRepository;
         this.followRepository = followRepository;
+        this.likePostRepository = likePostRepository;
+        this.likeCommentRepository = likeCommentRepository;
         this.encoder = encoder;
     }
 
@@ -64,12 +69,12 @@ public class UserService {
         return result;
     }
 
-    public User getUser(String userId) throws UserNotFoundException {
+    public User getUser(String userId) throws EntityNotFoundException {
         Optional<UserEntity> user = userRepository.findById(UUID.fromString(userId));
         if (user.isPresent()) {
             return mapper.map(user.get(), User.class);
         } else {
-            throw new UserNotFoundException("User " + userId + " not found");
+            throw new EntityNotFoundException("User " + userId + " not found");
         }
     }
 
@@ -90,7 +95,7 @@ public class UserService {
         return mapper.map(newUser, User.class);
     }
 
-    public void followUser(String from, String to) throws UserNotFoundException {
+    public void followUser(String from, String to) throws EntityNotFoundException {
         UserEntity fromUser = new UserEntity();
         fromUser.setId(UUID.fromString(from));
         UserEntity toUser = new UserEntity();
@@ -98,16 +103,16 @@ public class UserService {
         try {
             followRepository.save(new FollowEntity(fromUser, toUser));
         } catch (Exception e) {
-            throw new UserNotFoundException("User " + to + " not found");
+            throw new EntityNotFoundException("User " + to + " not found");
         }
     }
 
-    public void unfollowUser(String from, String to) throws UserNotFoundException {
+    public void unfollowUser(String from, String to) throws EntityNotFoundException {
         FollowEntity follow = followRepository.findFollowEntityByFromIdAndToId(UUID.fromString(from), UUID.fromString(to));
         try {
             followRepository.delete(follow);
         } catch (Exception e) {
-            throw new UserNotFoundException("User " + to + " not found");
+            throw new EntityNotFoundException("User " + to + " not found");
         }
     }
 
@@ -125,5 +130,47 @@ public class UserService {
                 .map(FollowEntity::getTo)
                 .map(userEntity -> mapper.map(userEntity, User.class))
                 .collect(Collectors.toList());
+    }
+
+    public void likeComment(String userId, String commentId) throws EntityNotFoundException {
+        UserEntity user = new UserEntity();
+        user.setId(UUID.fromString(userId));
+        CommentEntity comment = new CommentEntity();
+        comment.setId(UUID.fromString(commentId));
+        try {
+            likeCommentRepository.save(new LikeCommentEntity(user, comment));
+        } catch (Exception e) {
+            throw new EntityNotFoundException("Comment " + commentId + " not found");
+        }
+    }
+
+    public void likePost(String userId, String postId) throws EntityNotFoundException {
+        UserEntity user = new UserEntity();
+        user.setId(UUID.fromString(userId));
+        PostEntity post = new PostEntity();
+        post.setId(UUID.fromString(postId));
+        try {
+            likePostRepository.save(new LikePostEntity(user, post));
+        } catch (Exception e) {
+            throw new EntityNotFoundException("Post " + postId + " not found");
+        }
+    }
+
+    public void unlikeComment(String userId, String commentId) throws EntityNotFoundException {
+        LikeCommentEntity like = likeCommentRepository.findLikeCommentEntityByUserIdAndCommentId(UUID.fromString(userId), UUID.fromString(commentId));
+        try {
+            likeCommentRepository.delete(like);
+        } catch (Exception e) {
+            throw new EntityNotFoundException("Comment " + commentId + " not found");
+        }
+    }
+
+    public void unlikePost(String userId, String postId) throws EntityNotFoundException {
+        LikePostEntity like = likePostRepository.findLikePostEntityByUserIdAndPostId(UUID.fromString(userId), UUID.fromString(postId));
+        try {
+            likePostRepository.delete(like);
+        } catch (Exception e) {
+            throw new EntityNotFoundException("Comment " + postId + " not found");
+        }
     }
 }

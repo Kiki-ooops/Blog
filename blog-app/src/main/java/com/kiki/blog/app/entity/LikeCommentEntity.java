@@ -13,6 +13,15 @@ public class LikeCommentEntity {
     private UserEntity user;
     private CommentEntity comment;
 
+    public LikeCommentEntity(UserEntity user, CommentEntity comment) {
+        this.user = user;
+        this.comment = comment;
+    }
+
+    public LikeCommentEntity() {
+
+    }
+
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY, generator = "UUID")
     @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")

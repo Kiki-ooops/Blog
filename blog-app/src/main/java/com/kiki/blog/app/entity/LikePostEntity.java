@@ -13,6 +13,15 @@ public class LikePostEntity {
     private UserEntity user;
     private PostEntity post;
 
+    public LikePostEntity(UserEntity user, PostEntity post) {
+        this.user = user;
+        this.post = post;
+    }
+
+    public LikePostEntity() {
+
+    }
+
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY, generator = "UUID")
     @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
