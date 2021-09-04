@@ -383,7 +383,7 @@ class BlogApplicationTests {
         String token = authenticate(userUtil.username, userUtil.password);
         mockMvc.perform(
                 MockMvcRequestBuilders
-                        .post("/user/" + UUID.randomUUID().toString() + "/post")
+                        .post("/user/" + UUID.randomUUID() + "/post")
                         .header("Authorization", token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(getJson(post))
@@ -398,7 +398,9 @@ class BlogApplicationTests {
 
         String token = authenticate(postUtil.userUtil.username, postUtil.userUtil.password);
         MvcResult result = mockMvc.perform(
-                MockMvcRequestBuilders.get(String.format("/post/%s", newPost.getId())).header("Authorization", token)
+                MockMvcRequestBuilders
+                        .get(String.format("/post/%s", newPost.getId()))
+                        .header("Authorization", token)
         ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
         Post post = getObject(result.getResponse().getContentAsString(), Post.class);
 
@@ -511,34 +513,263 @@ class BlogApplicationTests {
     }
 
     @Test
-    public void testGetComment() throws Exception {}
+    public void testGetComment() throws Exception {
+        TestUserUtil userUtil = new TestUserUtil();
+        User user = userUtil.createUser(mockMvc);
+        TestPostUtil postUtil = new TestPostUtil();
+        Post post = postUtil.createPost(mockMvc);
+        Comment comment = new Comment().user(user).post(post).content(UUID.randomUUID().toString());
+
+        String token = authenticate(userUtil.username, userUtil.password);
+        MvcResult result1 = mockMvc.perform(
+                MockMvcRequestBuilders
+                        .post(String.format("/user/%s/post/%s/comment", userUtil.id, postUtil.id))
+                        .header("Authorization", token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(getJson(comment))
+                        .accept(MediaType.APPLICATION_JSON)
+        ).andExpect(MockMvcResultMatchers.status().isCreated()).andReturn();
+        Comment comment1 = getObject(result1.getResponse().getContentAsString(), Comment.class);
+        MvcResult result = mockMvc.perform(
+                MockMvcRequestBuilders
+                .get(String.format("/comment/%s", comment1.getId()))
+                .header("Authorization", token)
+        ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+        Comment newComment = getObject(result.getResponse().getContentAsString(), Comment.class);
+
+        assert  newComment.getUser().getId().equals(user.getId());
+        assert  newComment.getPost().getId().equals(post.getId());
+        assert  newComment.getContent().equals(comment1.getContent());
+
+    }
 
     @Test
-    public void testGetComments() throws Exception {}
+    public void testGetComments() throws Exception {
+        TestUserUtil userUtil = new TestUserUtil();
+        User user = userUtil.createUser(mockMvc);
+        TestPostUtil postUtil = new TestPostUtil();
+        Post post = postUtil.createPost(mockMvc);
+        Comment comment1 = new Comment().user(user).post(post).content(UUID.randomUUID().toString());
+        Comment comment2 = new Comment().user(user).post(post).content(UUID.randomUUID().toString());
+
+        String token = authenticate(userUtil.username, userUtil.password);
+        mockMvc.perform(
+                MockMvcRequestBuilders
+                        .post(String.format("/user/%s/post/%s/comment", userUtil.id, postUtil.id))
+                        .header("Authorization", token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(getJson(comment1))
+                        .accept(MediaType.APPLICATION_JSON)
+        ).andExpect(MockMvcResultMatchers.status().isCreated()).andReturn();
+        mockMvc.perform(
+                MockMvcRequestBuilders
+                        .post(String.format("/user/%s/post/%s/comment", userUtil.id, postUtil.id))
+                        .header("Authorization", token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(getJson(comment2))
+                        .accept(MediaType.APPLICATION_JSON)
+        ).andExpect(MockMvcResultMatchers.status().isCreated()).andReturn();
+
+        MvcResult result  = mockMvc.perform(
+                MockMvcRequestBuilders
+                .get(String.format("/post/%s/comment", postUtil.id))
+                        .header("Authorization", token)
+        ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+        Comment[] comments = getObject((result.getResponse().getContentAsString()), Comment[].class);
+
+        assert comments.length == 2;
+
+    }
 
     @Test
-    public void testUpdateComment() throws Exception {}
+    public void testUpdateComment() throws Exception {
+        TestUserUtil userUtil = new TestUserUtil();
+        User user = userUtil.createUser(mockMvc);
+        TestPostUtil postUtil = new TestPostUtil();
+        Post post = postUtil.createPost(mockMvc);
+        Comment comment = new Comment().user(user).post(post).content(UUID.randomUUID().toString());
+
+        String token = authenticate(userUtil.username, userUtil.password);
+        //comment.setContent(UUID.randomUUID().toString());
+        MvcResult result1 = mockMvc.perform(
+                MockMvcRequestBuilders
+                        .post(String.format("/user/%s/post/%s/comment", userUtil.id, postUtil.id))
+                        .header("Authorization", token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(getJson(comment))
+                        .accept(MediaType.APPLICATION_JSON)
+        ).andExpect(MockMvcResultMatchers.status().isCreated()).andReturn();
+        Comment comment1 = getObject(result1.getResponse().getContentAsString(), Comment.class);
+        MvcResult result = mockMvc.perform(
+                MockMvcRequestBuilders
+                        .put(String.format("/user/%s/comment/%s", userUtil.id, comment1.getId()))
+                        .header("Authorization", token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(getJson(post))
+                        .accept(MediaType.APPLICATION_JSON)
+        ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+        Comment newComment = getObject(result.getResponse().getContentAsString(), Comment.class);
+
+        assert newComment.getId().equals(comment1.getId());
+        //assert newComment.getContent().equals(comment1.getContent());
+
+
+    }
 
     @Test
-    public void testDeleteComment() throws Exception {}
+    public void testDeleteComment() throws Exception {
+        TestUserUtil userUtil = new TestUserUtil();
+        User user = userUtil.createUser(mockMvc);
+        TestPostUtil postUtil = new TestPostUtil();
+        Post post = postUtil.createPost(mockMvc);
+        Comment comment = new Comment().user(user).post(post).content(UUID.randomUUID().toString());
+
+        String token = authenticate(userUtil.username, userUtil.password);
+        MvcResult result1 = mockMvc.perform(
+                MockMvcRequestBuilders
+                        .post(String.format("/user/%s/post/%s/comment", userUtil.id, postUtil.id))
+                        .header("Authorization", token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(getJson(comment))
+                        .accept(MediaType.APPLICATION_JSON)
+        ).andExpect(MockMvcResultMatchers.status().isCreated()).andReturn();
+        Comment comment1 = getObject(result1.getResponse().getContentAsString(), Comment.class);
+        mockMvc.perform(
+                MockMvcRequestBuilders
+                        .delete(String.format("/user/%s/comment/%s", userUtil.id, comment1.getId()))
+                        .header("Authorization", token)
+        ).andExpect(MockMvcResultMatchers.status().isOk());
+        mockMvc.perform(
+                MockMvcRequestBuilders
+                        .get(String.format("/comment/%s", comment1.getId()))
+                        .header("Authorization", token)
+        ).andExpect(MockMvcResultMatchers.status().isNotFound());
+
+    }
 
     @Test
-    public void testLikePost() throws Exception {}
+    public void testLikePost() throws Exception {
+        TestUserUtil userUtil = new TestUserUtil();
+        User user = userUtil.createUser(mockMvc);
+        TestPostUtil postUtil = new TestPostUtil();
+        Post post = postUtil.createPost(mockMvc);
+
+        String token = authenticate(userUtil.username, userUtil.password);
+        mockMvc.perform(
+                MockMvcRequestBuilders
+                        .get(String.format("/user/%s/like/post/%s", user.getId(), post.getId()))
+                        .header("Authorization", token)
+        ).andExpect(MockMvcResultMatchers.status().isOk());
+    }
 
     @Test
-    public void testUnlikePost() throws Exception {}
+    public void testUnlikePost() throws Exception {
+        TestUserUtil userUtil = new TestUserUtil();
+        User user = userUtil.createUser(mockMvc);
+        TestPostUtil postUtil = new TestPostUtil();
+        Post post = postUtil.createPost(mockMvc);
+
+        String token = authenticate(userUtil.username, userUtil.password);
+        mockMvc.perform(
+                MockMvcRequestBuilders
+                        .delete(String.format("/user/%s/like/post/%s", user.getId(), post.getId()))
+                        .header("Authorization", token)
+        ).andExpect(MockMvcResultMatchers.status().isNotFound());
+
+    }
 
     @Test
-    public void testLikeComment() throws Exception {}
+    public void testLikeComment() throws Exception {
+        TestUserUtil userUtil = new TestUserUtil();
+        User user = userUtil.createUser(mockMvc);
+        TestPostUtil postUtil = new TestPostUtil();
+        Post post = postUtil.createPost(mockMvc);
+        Comment comment = new Comment().user(user).post(post).content(UUID.randomUUID().toString());
+
+        String token = authenticate(userUtil.username, userUtil.password);
+        MvcResult result1 = mockMvc.perform(
+                MockMvcRequestBuilders
+                        .post(String.format("/user/%s/post/%s/comment", userUtil.id, postUtil.id))
+                        .header("Authorization", token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(getJson(comment))
+                        .accept(MediaType.APPLICATION_JSON)
+        ).andExpect(MockMvcResultMatchers.status().isCreated()).andReturn();
+        Comment comment1 = getObject(result1.getResponse().getContentAsString(), Comment.class);
+        mockMvc.perform(
+                MockMvcRequestBuilders
+                        .get(String.format("/user/%s/like/comment/%s", userUtil.id, comment1.getId()))
+                        .header("Authorization", token)
+        ).andExpect(MockMvcResultMatchers.status().isOk());
+    }
 
     @Test
-    public void testUnlikeComment() throws Exception {}
+    public void testUnlikeComment() throws Exception {
+        TestUserUtil userUtil = new TestUserUtil();
+        User user = userUtil.createUser(mockMvc);
+        TestPostUtil postUtil = new TestPostUtil();
+        Post post = postUtil.createPost(mockMvc);
+        Comment comment = new Comment().user(user).post(post).content(UUID.randomUUID().toString());
+
+        String token = authenticate(userUtil.username, userUtil.password);
+        MvcResult result1 = mockMvc.perform(
+                MockMvcRequestBuilders
+                        .post(String.format("/user/%s/post/%s/comment", userUtil.id, postUtil.id))
+                        .header("Authorization", token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(getJson(comment))
+                        .accept(MediaType.APPLICATION_JSON)
+        ).andExpect(MockMvcResultMatchers.status().isCreated()).andReturn();
+        Comment comment1 = getObject(result1.getResponse().getContentAsString(), Comment.class);
+        mockMvc.perform(
+                MockMvcRequestBuilders
+                        .delete(String.format("/user/%s/like/comment/%s", userUtil.id, comment1.getId()))
+                        .header("Authorization", token)
+        ).andExpect(MockMvcResultMatchers.status().isNotFound());
+    }
 
     @Test
-    public void testGetPostNumLikes() throws Exception {}
+    public void testGetPostNumLikes() throws Exception {
+        TestPostUtil postUtil = new TestPostUtil();
+        Post post = postUtil.createPost(mockMvc);
+
+        String token = authenticate(postUtil.userUtil.username, postUtil.userUtil.password);
+        mockMvc.perform(
+                MockMvcRequestBuilders
+                        .get(String.format("/post/%s/likes", post.getId()))
+                        .header("Authorization", token)
+        ).andExpect(MockMvcResultMatchers.status().isOk());
+
+        //assert
+    }
 
     @Test
-    public void testGetCommentNumLikes() throws Exception {}
+    public void testGetCommentNumLikes() throws Exception {
+        TestUserUtil userUtil = new TestUserUtil();
+        User user = userUtil.createUser(mockMvc);
+        TestPostUtil postUtil = new TestPostUtil();
+        Post post = postUtil.createPost(mockMvc);
+        Comment comment = new Comment().user(user).post(post).content(UUID.randomUUID().toString());
+
+        String token = authenticate(userUtil.username, userUtil.password);
+        MvcResult result1 = mockMvc.perform(
+                MockMvcRequestBuilders
+                        .post(String.format("/user/%s/post/%s/comment", userUtil.id, postUtil.id))
+                        .header("Authorization", token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(getJson(comment))
+                        .accept(MediaType.APPLICATION_JSON)
+        ).andExpect(MockMvcResultMatchers.status().isCreated()).andReturn();
+        Comment comment1 = getObject(result1.getResponse().getContentAsString(), Comment.class);
+        mockMvc.perform(
+                MockMvcRequestBuilders
+                        .get(String.format("/comment/%s/likes", comment1.getId()))
+                        .header("Authorization", token)
+        ).andExpect(MockMvcResultMatchers.status().isOk());
+
+        //assert
+
+    }
 
 
     private String getJson(Object object) throws Exception {
