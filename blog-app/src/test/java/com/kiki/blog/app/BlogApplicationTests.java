@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.http.StreamingHttpOutputMessage;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -659,6 +660,14 @@ class BlogApplicationTests {
                         .header("Authorization", token)
         ).andExpect(MockMvcResultMatchers.status().isOk());
         // TODO: Count and test the number of likes with getNumOfLikes api
+        MvcResult result = mockMvc.perform(
+                MockMvcRequestBuilders
+                        .get(String.format("/post/%s/likes", post.getId()))
+                        .header("Authorization", token)
+        ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+        String likeUser =  result.getResponse().getContentAsString();
+
+        assert  likeUser.equals("1");
     }
 
     @Test
@@ -669,12 +678,37 @@ class BlogApplicationTests {
         Post post = postUtil.createPost(mockMvc);
 
         String token = authenticate(userUtil.username, userUtil.password);
+
+        mockMvc.perform(
+                MockMvcRequestBuilders
+                        .get(String.format("/user/%s/like/post/%s", user.getId(), post.getId()))
+                        .header("Authorization", token)
+        ).andExpect(MockMvcResultMatchers.status().isOk());
+
+        MvcResult result = mockMvc.perform(
+                MockMvcRequestBuilders
+                        .get(String.format("/post/%s/likes", post.getId()))
+                        .header("Authorization", token)
+        ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+        String likeUser =  result.getResponse().getContentAsString();
+
+        assert  likeUser.equals("1");
+
         mockMvc.perform(
                 MockMvcRequestBuilders
                         .delete(String.format("/user/%s/like/post/%s", user.getId(), post.getId()))
                         .header("Authorization", token)
-        ).andExpect(MockMvcResultMatchers.status().isNotFound());
+        ).andExpect(MockMvcResultMatchers.status().isOk());
         // TODO: Count and test the number of likes with getNumOfLikes api
+        MvcResult result1 = mockMvc.perform(
+                MockMvcRequestBuilders
+                        .get(String.format("/post/%s/likes", post.getId()))
+                        .header("Authorization", token)
+        ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+        String likeUser1 =  result1.getResponse().getContentAsString();
+
+        assert  likeUser1.equals("0");
+
     }
 
     @Test
@@ -701,6 +735,14 @@ class BlogApplicationTests {
                         .header("Authorization", token)
         ).andExpect(MockMvcResultMatchers.status().isOk());
         // TODO: Count and test the number of likes with getNumOfLikes api
+        MvcResult result = mockMvc.perform(
+                MockMvcRequestBuilders
+                        .get(String.format("/comment/%s/likes", comment1.getId()))
+                        .header("Authorization", token)
+        ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+        String commentLike =  result.getResponse().getContentAsString();
+
+        assert  commentLike.equals("1");
     }
 
     @Test
@@ -721,28 +763,84 @@ class BlogApplicationTests {
                         .accept(MediaType.APPLICATION_JSON)
         ).andExpect(MockMvcResultMatchers.status().isCreated()).andReturn();
         Comment comment1 = getObject(result1.getResponse().getContentAsString(), Comment.class);
+
+        mockMvc.perform(
+                MockMvcRequestBuilders
+                        .get(String.format("/user/%s/like/comment/%s", userUtil.id, comment1.getId()))
+                        .header("Authorization", token)
+        ).andExpect(MockMvcResultMatchers.status().isOk());
+        // TODO: Count and test the number of likes with getNumOfLikes api
+        MvcResult result = mockMvc.perform(
+                MockMvcRequestBuilders
+                        .get(String.format("/comment/%s/likes", comment1.getId()))
+                        .header("Authorization", token)
+        ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+        String commentLike =  result.getResponse().getContentAsString();
+
+        assert  commentLike.equals("1");
+
         mockMvc.perform(
                 MockMvcRequestBuilders
                         .delete(String.format("/user/%s/like/comment/%s", userUtil.id, comment1.getId()))
                         .header("Authorization", token)
-        ).andExpect(MockMvcResultMatchers.status().isNotFound());
+        ).andExpect(MockMvcResultMatchers.status().isOk());
         // TODO: Count and test the number of likes with getNumOfLikes api
+        MvcResult result2 = mockMvc.perform(
+                MockMvcRequestBuilders
+                        .get(String.format("/comment/%s/likes", comment1.getId()))
+                        .header("Authorization", token)
+        ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+        String commentLike1 =  result2.getResponse().getContentAsString();
+
+        assert  commentLike1.equals("0");
     }
 
     @Test
     public void testGetPostNumLikes() throws Exception {
+        TestUserUtil userUtil = new TestUserUtil();
+        User user = userUtil.createUser(mockMvc);
+        TestUserUtil userUtil1 = new TestUserUtil();
+        User user1 = userUtil1.createUser(mockMvc);
+        TestUserUtil userUtil2 = new TestUserUtil();
+        User user2 = userUtil2.createUser(mockMvc);
+
+        String token1 = authenticate(userUtil1.username, userUtil1.password);
+        String token2 = authenticate(userUtil2.username, userUtil2.password);
+
         TestPostUtil postUtil = new TestPostUtil();
         Post post = postUtil.createPost(mockMvc);
 
-        // Hint: You need to first create a post, like the post with 2 different users, and then count the num of likes
-        String token = authenticate(postUtil.userUtil.username, postUtil.userUtil.password);
+        String token = authenticate(userUtil.username, userUtil.password);
         mockMvc.perform(
+                MockMvcRequestBuilders
+                        .post("/user/" + user.getId() + "/post")
+                        .header("Authorization", token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(getJson(post))
+                        .accept(MediaType.APPLICATION_JSON)
+        ).andExpect(MockMvcResultMatchers.status().isCreated()).andReturn();
+
+        mockMvc.perform(
+                MockMvcRequestBuilders
+                        .get(String.format("/user/%s/like/post/%s", user1.getId(), post.getId()))
+                        .header("Authorization", token1)
+        ).andExpect(MockMvcResultMatchers.status().isOk());
+        mockMvc.perform(
+                MockMvcRequestBuilders
+                        .get(String.format("/user/%s/like/post/%s", user2.getId(), post.getId()))
+                        .header("Authorization", token2)
+        ).andExpect(MockMvcResultMatchers.status().isOk());
+
+        // Hint: You need to first create a post, like the post with 2 different users, and then count the num of likes
+        MvcResult result = mockMvc.perform(
                 MockMvcRequestBuilders
                         .get(String.format("/post/%s/likes", post.getId()))
                         .header("Authorization", token)
-        ).andExpect(MockMvcResultMatchers.status().isOk());
+        ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+        String likeUser =  result.getResponse().getContentAsString();
 
-        //assert
+        assert  likeUser.equals("2");
+
     }
 
     @Test
@@ -764,13 +862,34 @@ class BlogApplicationTests {
                         .accept(MediaType.APPLICATION_JSON)
         ).andExpect(MockMvcResultMatchers.status().isCreated()).andReturn();
         Comment comment1 = getObject(result1.getResponse().getContentAsString(), Comment.class);
+
+        TestUserUtil userUtil1 = new TestUserUtil();
+        User user1 = userUtil1.createUser(mockMvc);
+        TestUserUtil userUtil2 = new TestUserUtil();
+        User user2 = userUtil2.createUser(mockMvc);
+
+        String token1 = authenticate(userUtil1.username, userUtil1.password);
+        String token2 = authenticate(userUtil2.username, userUtil2.password);
+
         mockMvc.perform(
+                MockMvcRequestBuilders
+                        .get(String.format("/user/%s/like/comment/%s", user1.getId(), comment1.getId()))
+                        .header("Authorization", token1)
+        ).andExpect(MockMvcResultMatchers.status().isOk());
+        mockMvc.perform(
+                MockMvcRequestBuilders
+                        .get(String.format("/user/%s/like/comment/%s", user2.getId(), comment1.getId()))
+                        .header("Authorization", token2)
+        ).andExpect(MockMvcResultMatchers.status().isOk());
+
+        MvcResult result = mockMvc.perform(
                 MockMvcRequestBuilders
                         .get(String.format("/comment/%s/likes", comment1.getId()))
                         .header("Authorization", token)
-        ).andExpect(MockMvcResultMatchers.status().isOk());
+        ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+        String commentLike =  result.getResponse().getContentAsString();
 
-        //assert
+        assert  commentLike.equals("2");
 
     }
 
