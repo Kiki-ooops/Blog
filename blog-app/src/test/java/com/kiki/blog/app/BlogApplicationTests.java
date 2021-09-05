@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.http.StreamingHttpOutputMessage;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -541,7 +540,6 @@ class BlogApplicationTests {
         assert  newComment.getUser().getId().equals(user.getId());
         assert  newComment.getPost().getId().equals(post.getId());
         assert  newComment.getContent().equals(comment1.getContent());
-
     }
 
     @Test
@@ -708,7 +706,6 @@ class BlogApplicationTests {
         String likeUser1 =  result1.getResponse().getContentAsString();
 
         assert  likeUser1.equals("0");
-
     }
 
     @Test
@@ -840,7 +837,6 @@ class BlogApplicationTests {
         String likeUser =  result.getResponse().getContentAsString();
 
         assert  likeUser.equals("2");
-
     }
 
     @Test
@@ -890,7 +886,6 @@ class BlogApplicationTests {
         String commentLike =  result.getResponse().getContentAsString();
 
         assert  commentLike.equals("2");
-
     }
 
 
