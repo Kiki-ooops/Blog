@@ -1,13 +1,16 @@
 package com.kiki.blog.app.controller;
 
+import com.kiki.blog.app.entity.PostEntity;
 import com.kiki.blog.app.service.CommentService;
 import com.kiki.blog.app.service.PostService;
 import com.kiki.blog.openapi.api.PostApi;
 import com.kiki.blog.openapi.model.Comment;
 import com.kiki.blog.openapi.model.Post;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -37,5 +40,11 @@ public class PostController implements PostApi {
     @Override
     public ResponseEntity<Integer> getPostNumLikes(String postId) throws Exception {
         return new ResponseEntity<>(postService.getPostLikes(postId), HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity<List<Post>> latestPosts(Integer pageNumber, Integer pageSize) throws Exception {
+        List<Post> list = postService.getLatestPosts(pageNumber, pageSize, "datetime");
+        return new ResponseEntity<>(list, HttpStatus.OK);
     }
 }

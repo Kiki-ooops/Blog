@@ -460,6 +460,37 @@ paths:
         '200':
           description: 'Comment deleted'
 
+  /post/latest:
+    post:
+      description: 'return the latest posts'
+      operationId: 'latestPosts'
+      parameters:
+        - name: 'pageNumber'
+          in: query
+          description: 'page number of the returned posts'
+          required: true
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: 'pageSize'
+          in: query
+          description: 'page size of the returned page'
+          required: true
+          schema:
+            type: integer
+            minimum: 0
+            default: 10
+      responses:
+        '200':
+          description: 'return the latest 10 posts'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Post'
+
   /post/{postId}:
     get:
       description: 'Get post by Id'
