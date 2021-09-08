@@ -1,1 +1,1 @@
-web: cd blog-app && mvn spring-boot:start
+web: bash spring-app/mvnw spring-boot:start
