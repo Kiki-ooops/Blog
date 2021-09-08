@@ -1,1 +1,1 @@
-web: cd blog-app && java -jar target/blog-app-0.0.1-SNAPSHOT.jar
+web: cd blog-app && java -jar -Dspring.profiles.active=prod target/blog-app-0.0.1-SNAPSHOT.jar
