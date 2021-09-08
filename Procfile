@@ -1,1 +1,1 @@
-web: bash spring-app/mvnw spring-boot:start
+web: bash blog-app/mvnw spring-boot:start
