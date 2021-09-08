@@ -1,0 +1,1 @@
+web: cd blog-app && mvn spring-boot:start
