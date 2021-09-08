@@ -1,20 +1,17 @@
 package com.kiki.blog.app.service;
 
-import com.kiki.blog.app.entity.FollowEntity;
 import com.kiki.blog.app.entity.PostEntity;
 import com.kiki.blog.app.entity.UserEntity;
 import com.kiki.blog.app.error.exception.EntityNotFoundException;
 import com.kiki.blog.app.repository.LikePostRepository;
 import com.kiki.blog.app.repository.PostRepository;
 import com.kiki.blog.openapi.model.Post;
-import com.kiki.blog.openapi.model.User;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 
 import java.time.OffsetDateTime;
@@ -98,7 +95,7 @@ public class PostService {
     }
 
     public List<Post> getLatestPosts(Integer pageNo, Integer pageSize, String sortBy) {
-        Pageable paging = PageRequest.of(pageNo, pageSize, Sort.by(sortBy));
+        Pageable paging = PageRequest.of(pageNo, pageSize, Sort.by(Sort.Direction.DESC, sortBy));
 
         Page<PostEntity> pagedResult = postRepository.findAll(paging);
 

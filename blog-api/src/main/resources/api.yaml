@@ -461,7 +461,7 @@ paths:
           description: 'Comment deleted'
 
   /post/latest:
-    post:
+    get:
       description: 'return the latest posts'
       operationId: 'latestPosts'
       parameters:
@@ -606,8 +606,11 @@ components:
       properties:
         token:
           type: string
+        uid:
+          type: string
       required:
         - token
+        - uid
 
     User:
       type: object

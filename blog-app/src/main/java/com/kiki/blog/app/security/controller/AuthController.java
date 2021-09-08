@@ -1,5 +1,6 @@
 package com.kiki.blog.app.security.controller;
 
+import com.kiki.blog.app.security.model.BlogUserDetail;
 import com.kiki.blog.openapi.api.AuthenticateApi;
 import com.kiki.blog.openapi.model.AuthRequest;
 import com.kiki.blog.openapi.model.AuthResponse;
@@ -35,7 +36,7 @@ public class AuthController implements AuthenticateApi {
     }
 
     @Override
-    public ResponseEntity<AuthResponse> authenticate(@Valid AuthRequest authRequest) throws Exception {
+    public ResponseEntity<AuthResponse> authenticate(@Valid AuthRequest authRequest) {
         UserDetails userDetails = userDetailsService.loadUserByUsername(authRequest.getUsername());
         try {
             authenticationManager.authenticate(
@@ -44,6 +45,6 @@ public class AuthController implements AuthenticateApi {
         } catch (BadCredentialsException e) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
-        return new ResponseEntity<>(new AuthResponse().token(jwtTokenService.generateToken(userDetails)), HttpStatus.OK);
+        return new ResponseEntity<>(new AuthResponse().token(jwtTokenService.generateToken(userDetails)).uid(((BlogUserDetail)userDetails).getUid()), HttpStatus.OK);
     }
 }
