@@ -588,6 +588,47 @@ paths:
               schema:
                 type: integer
 
+  /image:
+    post:
+      description: 'Upload image'
+      operationId: 'uploadImage'
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                fileName:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: 'Return saved file ID'
+          content:
+            application/json:
+              schema:
+                type: string
+
+  /image/{imageId}:
+    get:
+      description: 'Get image by ID'
+      operationId: 'getImage'
+      parameters:
+        - name: 'imageId'
+          in: path
+          description: 'Id of the image'
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'Image'
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+
 components:
   schemas:
     AuthRequest:

@@ -1,5 +1,6 @@
 package com.kiki.blog.app.error;
 
+import com.kiki.blog.app.error.exception.FileNotFoundException;
 import com.kiki.blog.app.error.exception.UnauthorizedAccessException;
 import com.kiki.blog.app.error.exception.EntityNotFoundException;
 import com.kiki.blog.app.error.exception.UsernameConflictExceptions;
@@ -31,5 +32,10 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(UnauthorizedAccessException.class)
     protected ResponseEntity<Object> handleUnauthorizedAccessExceptions(UnauthorizedAccessException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(FileNotFoundException.class)
+    protected ResponseEntity<Object> handleFileNotFoundExceptions(FileNotFoundException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 }
