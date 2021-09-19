@@ -82,17 +82,27 @@ public class UserService {
         userRepository.deleteById(UUID.fromString(userId));
     }
 
-    public User updateUser(String userId, CreateUser user) throws UsernameConflictExceptions {
-        UserEntity newUser = mapper.map(user.getUser(), UserEntity.class);
-        newUser.setId(UUID.fromString(userId));
-        newUser.setPassword(encoder.encode(user.getPassword()));
-        newUser.setRoles("ROLE_USER");
-        try {
-            newUser = userRepository.save(newUser);
-        } catch (Exception e) {
-            throw new UsernameConflictExceptions(e.getCause().getCause().getMessage());
+    public User updateUser(String userId, CreateUser user) throws EntityNotFoundException {
+        Optional<UserEntity> userEntityOptional = userRepository.findById(UUID.fromString(userId));
+        if (userEntityOptional.isPresent()) {
+            UserEntity userEntity = userEntityOptional.get();
+            if (user.getUser().getUsername() != null && !user.getUser().getUsername().equals("")) {
+                userEntity.setUsername(user.getUser().getUsername());
+            }
+            if (user.getUser().getEmail() != null && !user.getUser().getEmail().equals("")) {
+                userEntity.setEmail(user.getUser().getEmail());
+            }
+            if (user.getUser().getAvatar() != null && !user.getUser().getAvatar().equals("")) {
+                userEntity.setAvatar(user.getUser().getAvatar());
+            }
+            if (user.getPassword() != null && !user.getPassword().equals("")) {
+                userEntity.setPassword(encoder.encode(user.getPassword()));
+            }
+            userRepository.save(userEntity);
+            return mapper.map(userEntity, User.class);
+        } else {
+            throw new EntityNotFoundException("User " + userId + " not found");
         }
-        return mapper.map(newUser, User.class);
     }
 
     public void followUser(String from, String to) throws EntityNotFoundException {
@@ -104,6 +114,8 @@ public class UserService {
             followRepository.save(new FollowEntity(fromUser, toUser));
         } catch (Exception e) {
             throw new EntityNotFoundException("User " + to + " not found");
+            Set<Integer> s = new HashSet();
+            s.
         }
     }
 

@@ -21,7 +21,7 @@ public class ImageService {
     private final Path fileStorageLocation;
 
     public ImageService() throws IOException {
-        this.fileStorageLocation = Paths.get("resources/images").toAbsolutePath().normalize();
+        this.fileStorageLocation = Paths.get("images").toAbsolutePath().normalize();
         Files.createDirectories(this.fileStorageLocation);
     }
 

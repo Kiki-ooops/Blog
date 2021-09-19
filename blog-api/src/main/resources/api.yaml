@@ -598,7 +598,7 @@ paths:
             schema:
               type: object
               properties:
-                fileName:
+                image:
                   type: string
                   format: binary
       responses:
