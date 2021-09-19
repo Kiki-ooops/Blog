@@ -114,8 +114,6 @@ public class UserService {
             followRepository.save(new FollowEntity(fromUser, toUser));
         } catch (Exception e) {
             throw new EntityNotFoundException("User " + to + " not found");
-            Set<Integer> s = new HashSet();
-            s.
         }
     }
 
