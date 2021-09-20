@@ -26,8 +26,8 @@ public class ImageController implements ImageApi {
     }
 
     @Override
-    public ResponseEntity<String> uploadImage(MultipartFile fileName) throws Exception {
-        String file = imageService.storeFile(fileName);
+    public ResponseEntity<String> uploadImage(MultipartFile image) throws Exception {
+        String file = imageService.storeFile(image);
         return new ResponseEntity<>(file, HttpStatus.OK);
     }
 
